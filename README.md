@@ -8,52 +8,46 @@ gives you a static html and css to put in your own sites
 
 # usage
 
-example.ts creates an html file with a tweet embed of https://twitter.com/CommandtechnoYT/status/1505810636676243457 in dark theme
+example.ts creates html file for multiple twitter embeds
 
 ```ts
-import { getTweets, getHtml, getStyles } from "./index";
+import {
+  getTweet,
+  getTweetStyles,
+  getProfile,
+  getProfileStyles,
+  getList,
+  getListStyles
+} from "../src";
+
 import { writeFile } from "fs/promises";
+import { resolve } from "path";
 
 (async () => {
-  const styles = await getStyles({ theme: "dark" });
-  const tweets = await getTweets(["1505810636676243457"], { theme: "dark" });
-  const html = await getHtml(tweets["1505810636676243457"]);
-  await writeFile("test.html", "<style>" + styles + "</style>" + html);
+  // https://twitter.com/CommandtechnoYT/status/1505810636676243457
+  const tweet = await getTweet("1505810636676243457", { theme: "dark" });
+  const tweetStyles = await getTweetStyles({ theme: "dark" });
+  await writeFile(
+    resolve(__dirname, "tweet.html"),
+    "<style>" + tweetStyles + "</style>" + tweet
+  );
+
+  // https://twitter.com/CommandtechnoYT
+  const timeline = await getProfile("CommandtechnoYT", { theme: "dark" });
+  const timelineStyles = await getProfileStyles({ theme: "dark" });
+  await writeFile(
+    resolve(__dirname, "profile.html"),
+    "<style>" + timelineStyles + "</style>" + timeline
+  );
+
+  // https://twitter.com/i/lists/715919216927322112
+  const list = await getList("715919216927322112", { theme: "dark" });
+  const listStyles = await getListStyles({ theme: "dark" });
+  await writeFile(
+    resolve(__dirname, "list.html"),
+    "<style>" + listStyles + "</style>" + list
+  );
 })();
 ```
 
-output:
-
-![example output](https://cdn.discordapp.com/attachments/796997555752796184/956370087227559936/unknown.png)
-
-# documentation
-
-```ts
-// returns the url of the css that you need to include
-// warning
-export function getStyles(options?: {
-  theme?: "light" | "dark";
-  direction?: "ltr" | "rtl";
-}): Promise<string>;
-
-// returns the css that you need to include
-export function getStyles(options?: {
-  theme?: "light" | "dark";
-  direction?: "ltr" | "rtl";
-}): Promise<string>;
-
-export function getTweets(
-  ids: string[],
-  options?: {
-    theme?: "light" | "dark";
-  }
-): Promise<{ id: string }>;
-
-export function getProfileTimeline(
-  screenName: string,
-  options?: { theme?: "light" | "dark" }
-): Promise<string>;
-
-// returns the full formatted html from getTweets or getProfileTimeline
-export function getHtml(html: string): Promise<string>;
-```
+<!-- # output -->

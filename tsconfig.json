@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "declaration": true
+    "declaration": true,
+    "outDir": "build"
   },
   "files": ["src/index.ts"]
 }

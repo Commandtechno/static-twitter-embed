@@ -3,6 +3,11 @@ import { LANG, TZ } from "./constants";
 import { load } from "cheerio";
 import robert from "robert";
 
+const twitter = robert
+  .client("https://syndication.twitter.com")
+  .query("lang", LANG)
+  .query("tz", TZ);
+
 export async function getTweet(
   id: string,
   options?: { theme?: "light" | "dark" }
@@ -16,42 +21,69 @@ export async function getTweets<T extends string>(
   options?: { theme?: "light" | "dark" }
 ): Promise<{ [K in T]: string }> {
   const theme = options?.theme ?? "light";
-  const json = await robert
-    .get("https://syndication.twitter.com/tweets.json")
+  const tweets = await twitter
+    .get("/tweets.json")
     .query("ids", ids.join(","))
     .query("theme", theme)
-    .query("lang", LANG)
-    .query("tz", TZ)
     .send("json");
 
-  for (const id in json) {
-    const html = json[id];
-    json[id] = formatHtml(html);
+  for (const id in tweets) {
+    const html = tweets[id];
+    tweets[id] = formatHtml(html);
   }
 
-  return json;
+  return tweets;
 }
 
-export async function getTimeline(
-  profile: string,
+export async function getProfile(
+  username: string,
   options?: { theme?: "light" | "dark" }
 ): Promise<string> {
   const theme = options?.theme ?? "light";
-  const json = await robert
-    .get("https://syndication.twitter.com/timeline/profile.json")
-    .query("screen_name", profile)
+  const profile = await twitter
+    .get("/timeline/profile.json")
+    .query("screen_name", username)
     .query("theme", theme)
-    .query("lang", LANG)
-    .query("tz", TZ)
     .send("json");
 
-  return formatHtml(json.body);
+  return formatHtml(profile.body);
+}
+
+export async function getList(
+  id: string,
+  options?: { theme?: "light" | "dark" }
+) {
+  // get profile name and slug from oembed
+  const url = "https://twitter.com/i/lists/" + id;
+  const oembed = await robert
+    .get("https://publish.twitter.com/oembed")
+    .query("url", url)
+    .send("json");
+
+  const [, username, , slug] = new URL(oembed.url).pathname.split("/");
+  const list = await twitter
+    .get("/timeline/list.json")
+    .query("list_slug", slug)
+    .query("screen_name", username)
+    .send("json");
+
+  return formatHtml(list.body);
 }
 
 export function formatHtml(html: string) {
   const $ = load(html);
 
   $("img").each((_, el) => {
+    // emojis just need https
+    const src = el.attribs.src;
+    if (src) {
+      if (src.startsWith("//")) {
+        el.attribs.src = "https:" + src;
+      } else {
+        el.attribs.src = src;
+      }
+    }
+
     // tweet photos and video thumbnails
     const image = el.attribs["data-image"];
     if (image) {
@@ -63,14 +95,14 @@ export function formatHtml(html: string) {
     }
 
     // profile pictures
-    const src =
+    const dataSrc =
       el.attribs["data-src"] ??
       el.attribs["data-src-1x"] ??
       el.attribs["data-src-2x"] ??
       el.attribs["data-src-4x"];
 
-    if (src) {
-      el.attribs.src = src;
+    if (dataSrc) {
+      el.attribs.src = dataSrc;
       return;
     }
   });

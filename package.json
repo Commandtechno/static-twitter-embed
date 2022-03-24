@@ -1,9 +1,14 @@
 {
+  "main": "build/index.js",
   "name": "static-twitter-embed",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a tool to create static twitter embeds",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Commandtechno/static-twitter-embed.git"
+  },
   "scripts": {
-    "build": "tsc",
+    "build": "npm run test && tsc",
     "test": "ts-node --transpile-only test"
   },
   "dependencies": {
@@ -14,5 +19,12 @@
     "@types/node": "^17.0.23",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
-  }
+  },
+  "keywords": [
+    "twitter",
+    "embed",
+    "static",
+    "ssr",
+    "tweet"
+  ]
 }
