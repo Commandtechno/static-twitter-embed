@@ -57,7 +57,7 @@ export async function getProfileTimeline(
   return json;
 }
 
-export async function getHtml(html: string) {
+export function getHtml(html: string) {
   const $ = load(html);
 
   $("img").each((_, el) => {

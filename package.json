@@ -1,6 +1,6 @@
 {
   "name": "static-twitter-embed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a tool to create static twitter embeds",
   "scripts": {
     "example": "ts-node --transpile-only example.ts",
