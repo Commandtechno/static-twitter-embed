@@ -1,7 +1,7 @@
 {
   "main": "build/index.js",
   "name": "static-twitter-embed",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "a tool to create static twitter embeds",
   "repository": {
     "type": "git",
