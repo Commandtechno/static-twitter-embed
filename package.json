@@ -1,0 +1,18 @@
+{
+  "name": "static-twitter-embed",
+  "version": "1.0.0",
+  "description": "a tool to create static twitter embeds",
+  "scripts": {
+    "example": "ts-node --transpile-only example.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
+    "robert": "^2.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  }
+}
