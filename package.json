@@ -3,8 +3,8 @@
   "version": "1.0.1",
   "description": "a tool to create static twitter embeds",
   "scripts": {
-    "example": "ts-node --transpile-only example.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "ts-node --transpile-only test"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",

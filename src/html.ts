@@ -1,28 +1,14 @@
+import { LANG, TZ } from "./constants";
+
 import { load } from "cheerio";
 import robert from "robert";
 
-export const [lang] = Intl.DateTimeFormat().resolvedOptions().locale.split("-"); // en
-export const [, tz] = new Date().toTimeString().split(" "); // GMT-0500
-
-export async function getStyles(options?: {
-  theme?: "light" | "dark";
-  direction?: "ltr" | "rtl";
-}): Promise<string> {
-  const theme = options?.theme ?? "light";
-  const direction = options?.direction ?? "ltr";
-
-  let css = await robert
-    .get(
-      `https://platform.twitter.com/css/tweet.70d178496d6952c2c1b84d8c00695473.${theme}.${direction}.css`
-    )
-    .send("text");
-
-  // dark css doesn't set the color to white for some reason
-  if (theme === "dark") {
-    css += ".EmbeddedTweet{color:white}";
-  }
-
-  return css;
+export async function getTweet(
+  id: string,
+  options?: { theme?: "light" | "dark" }
+) {
+  const tweets = await getTweets([id], options);
+  return tweets[id];
 }
 
 export async function getTweets<T extends string>(
@@ -34,30 +20,35 @@ export async function getTweets<T extends string>(
     .get("https://syndication.twitter.com/tweets.json")
     .query("ids", ids.join(","))
     .query("theme", theme)
-    .query("lang", lang)
-    .query("tz", tz)
+    .query("lang", LANG)
+    .query("tz", TZ)
     .send("json");
+
+  for (const id in json) {
+    const html = json[id];
+    json[id] = formatHtml(html);
+  }
 
   return json;
 }
 
-export async function getProfileTimeline(
-  screenName: string,
+export async function getTimeline(
+  profile: string,
   options?: { theme?: "light" | "dark" }
 ): Promise<string> {
   const theme = options?.theme ?? "light";
   const json = await robert
-    .get("https://syndication.twitter.com/tweets.json")
-    .query("screen_name", screenName)
+    .get("https://syndication.twitter.com/timeline/profile.json")
+    .query("screen_name", profile)
     .query("theme", theme)
-    .query("lang", lang)
-    .query("tz", tz)
+    .query("lang", LANG)
+    .query("tz", TZ)
     .send("json");
 
-  return json;
+  return formatHtml(json.body);
 }
 
-export function getHtml(html: string) {
+export function formatHtml(html: string) {
   const $ = load(html);
 
   $("img").each((_, el) => {

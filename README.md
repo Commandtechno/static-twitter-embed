@@ -29,6 +29,13 @@ output:
 # documentation
 
 ```ts
+// returns the url of the css that you need to include
+// warning
+export function getStyles(options?: {
+  theme?: "light" | "dark";
+  direction?: "ltr" | "rtl";
+}): Promise<string>;
+
 // returns the css that you need to include
 export function getStyles(options?: {
   theme?: "light" | "dark";
